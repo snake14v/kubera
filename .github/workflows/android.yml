@@ -1,0 +1,92 @@
+name: Build Android APK
+
+on:
+  push:
+    tags:
+      - "v*" # tag push (e.g. v1.0.0) -> builds + attaches the APK to a GitHub Release
+  workflow_dispatch: # manual "Run workflow" button -> builds + uploads a downloadable artifact
+    inputs:
+      app_url:
+        description: "Deployed Kubera URL the APK should load (overrides repo default)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write # needed so the Release step can create a release + upload assets
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+    env:
+      # The running Next.js origin the shell loads. Set the repo/Action variable
+      # KUBERA_APP_URL (Settings -> Secrets and variables -> Actions -> Variables),
+      # or pass app_url on a manual run. Falls back to the capacitor.config.ts default.
+      KUBERA_APP_URL: ${{ github.event.inputs.app_url != '' && github.event.inputs.app_url || vars.KUBERA_APP_URL }}
+      KUBERA_APP_ID: com.oorulogix.kubera
+      KUBERA_APP_NAME: Kubera
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      # The shell loads a remote URL, so the web-assets dir is unused — but the
+      # Capacitor CLI still requires it to exist. Create a placeholder.
+      - name: Ensure web assets dir exists
+        run: |
+          mkdir -p out
+          [ -f out/index.html ] || printf '<!doctype html><meta charset="utf-8"><title>Kubera</title>' > out/index.html
+
+      # Generate the native android/ project in CI (it is gitignored).
+      - name: Add Android platform (if missing)
+        run: |
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
+
+      # Push capacitor.config.ts (incl. KUBERA_APP_URL) into the android project.
+      - name: Capacitor sync (android)
+        run: npx cap sync android
+
+      - name: Make gradlew executable
+        run: chmod +x ./android/gradlew
+
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug --no-daemon
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kubera-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publish GitHub Release with APK
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: android/app/build/outputs/apk/debug/app-debug.apk
+          name: Kubera ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

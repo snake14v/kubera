@@ -36,3 +36,27 @@ next-env.d.ts
 # internal planning / strategy docs — kept local, not published
 KUBERA-STRATEGY-ULTRAPLAN.md
 KUBERA-REVIEW-AND-PLAN.md
+
+# ── Capacitor / Android (generated native shell) ───────────────────────────
+# The android/ folder is regenerable via `npx cap add android` + `npx cap sync`,
+# so we ignore it wholesale. To COMMIT the native project instead (for custom
+# icons/splash/native code), comment the next line and uncomment the granular
+# block below it.
+/android/
+# /android/.gradle/
+# /android/build/
+# /android/app/build/
+# /android/captures/
+# /android/local.properties
+# /android/.idea/
+# /android/app/release/
+
+# Gradle / Android build outputs
+*.apk
+*.aab
+local.properties
+
+# Signing material — NEVER commit
+*.keystore
+*.jks
+keystore.properties

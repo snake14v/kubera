@@ -16,7 +16,11 @@
     "test:watch": "vitest",
     "setup": "node scripts/setup.mjs",
     "check:setup": "node scripts/check-setup.mjs",
-    "firebase:deploy": "node scripts/deploy-firebase.mjs"
+    "firebase:deploy": "node scripts/deploy-firebase.mjs",
+    "cap:add": "cap add android",
+    "cap:sync": "cap sync android",
+    "apk:debug": "cd android && gradlew.bat assembleDebug",
+    "apk:install": "adb install -r android/app/build/outputs/apk/debug/app-debug.apk"
   },
   "dependencies": {
     "firebase": "^12.14.0",
@@ -30,6 +34,9 @@
     "resend": "^3.5.0"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.4.0",
+    "@capacitor/cli": "^8.4.0",
+    "@capacitor/core": "^8.4.0",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^20.14.12",
     "@types/qrcode": "^1.5.6",
