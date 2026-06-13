@@ -6,7 +6,7 @@
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { arrayUnion, collection, doc, onSnapshot, orderBy, query, updateDoc, Timestamp } from "firebase/firestore";
-import { auth, db, isAdmin } from "@/lib/firebase";
+import { auth, db, isAdmin, firebaseEnabled } from "@/lib/firebase";
 import { orderCode, SIZE_LABEL, type SizeKey } from "@/lib/orders";
 import { usePresence } from "@/lib/presence";
 import StaffGate, { useStaffGate } from "@/components/StaffGate";
@@ -84,6 +84,16 @@ function Board({ user }: { user: User | null }) {
       setOrders(docs);
     });
   }, [admin]);
+
+  if (!firebaseEnabled)
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-forest-950 p-8 text-center">
+        <div>
+          <p className="font-display text-2xl font-bold text-cream">Kitchen Display</p>
+          <p className="mt-2 font-body text-sm text-cream/55">Firebase isn&rsquo;t configured yet — add the NEXT_PUBLIC_FIREBASE_* env vars (see FIREBASE-SETUP.md), then reload.</p>
+        </div>
+      </main>
+    );
 
   if (!admin)
     return (

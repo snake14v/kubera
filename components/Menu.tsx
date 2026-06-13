@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { BRAND } from "@/lib/brand";
 import Reveal from "./Reveal";
 import DrinkGlass from "./DrinkGlass";
 import { Eyebrow } from "./ui";
@@ -232,7 +233,7 @@ export default function Menu() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/menu-matcha.jpg"
-              alt="The Orbéan Signature Matcha Collection"
+              alt={`The ${BRAND.business.name} Signature Matcha Collection`}
               className="h-56 w-full object-cover sm:h-72 lg:h-80"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/40 to-transparent" />

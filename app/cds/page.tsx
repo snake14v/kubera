@@ -7,9 +7,10 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { collection, doc, onSnapshot, orderBy, query, Timestamp } from "firebase/firestore";
 import QRCode from "qrcode";
-import { auth, db, isAdmin } from "@/lib/firebase";
+import { auth, db, isAdmin, firebaseEnabled } from "@/lib/firebase";
 import { BRAND } from "@/lib/brand";
 import { orderCode } from "@/lib/orders";
+import { inr } from "@/lib/format";
 import { ingredientsFor, ADDON_LAYERS } from "@/lib/menu";
 import { usePresence } from "@/lib/presence";
 import DrinkGlass from "@/components/DrinkGlass";
@@ -18,7 +19,6 @@ import FoodPlate from "@/components/FoodPlate";
 type LiveLine = { name: string; size?: string | null; temp?: string | null; addons?: string[]; qty: number; price: number };
 type Ord = { id: string; name: string; status: string; createdAt?: Timestamp };
 type LiveBill = { lines: LiveLine[]; total: number; pay: string; atMs: number };
-const inr = (n: number) => "₹" + (n ?? 0).toLocaleString("en-IN");
 const FOOD_PLATE_NAMES = ["Classic Croissant", "Avocado Toast", "Cheesecake Slice"];
 
 export default function CDS() {
@@ -71,7 +71,14 @@ export default function CDS() {
         <p className="font-display text-3xl font-bold tabular-nums text-gold-400">{clock}</p>
       </div>
 
-      {!admin ? (
+      {!firebaseEnabled ? (
+        <div className="flex flex-1 items-center justify-center text-center">
+          <div>
+            <p className="font-display text-2xl font-bold">Customer Display</p>
+            <p className="mt-2 font-body text-sm text-cream/55">Firebase isn&rsquo;t configured yet — add the NEXT_PUBLIC_FIREBASE_* env vars (see FIREBASE-SETUP.md), then reload.</p>
+          </div>
+        </div>
+      ) : !admin ? (
         <div className="flex flex-1 items-center justify-center text-center">
           <div>
             <p className="font-display text-2xl font-bold">Customer Display</p>

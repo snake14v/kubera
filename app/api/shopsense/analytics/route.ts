@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import { cleanEnv } from "@/lib/cleanEnv";
 import { FIREBASE_API_KEY } from "@/lib/firebaseConfig";
 
-const ADMINS = (cleanEnv(process.env.NEXT_PUBLIC_ADMIN_EMAILS) || "you@example.com")
+// Admin allow-list — NO placeholder fallback. If unset, the list is empty and
+// every request fails CLOSED (see verifyAdmin), rather than opening access.
+const ADMINS = cleanEnv(process.env.NEXT_PUBLIC_ADMIN_EMAILS)
   .split(",")
   .map((e) => cleanEnv(e).toLowerCase())
   .filter(Boolean);
@@ -10,6 +12,9 @@ const ADMINS = (cleanEnv(process.env.NEXT_PUBLIC_ADMIN_EMAILS) || "you@example.c
 async function verifyAdmin(idToken: string): Promise<boolean> {
   const key = FIREBASE_API_KEY;
   if (!key) return false;
+  // Empty allow-list ⇒ deny (fail closed). An unconfigured deploy must never
+  // grant analytics access.
+  if (ADMINS.length === 0) return false;
   const res = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${key}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -18,7 +23,7 @@ async function verifyAdmin(idToken: string): Promise<boolean> {
   if (!res.ok) return false;
   const data = await res.json();
   const email = String(data.users?.[0]?.email || "").toLowerCase();
-  return Boolean(email) && (ADMINS.length === 0 || ADMINS.includes(email));
+  return Boolean(email) && ADMINS.includes(email);
 }
 
 /** Start of today in IST, as a UTC ISO string. */

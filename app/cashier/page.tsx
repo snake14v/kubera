@@ -7,8 +7,9 @@
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { addDoc, arrayUnion, collection, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc, Timestamp } from "firebase/firestore";
-import { auth, db, isAdmin } from "@/lib/firebase";
-import { orderCode, ORDERABLE, CATEGORIES, ADDONS, priceFor, SIZE_LABEL, type OrderableItem, type SizeKey, type AddonPick } from "@/lib/orders";
+import { auth, db, isAdmin, firebaseEnabled } from "@/lib/firebase";
+import { orderCode, ORDERABLE, CATEGORIES, ADDONS, priceFor, SIZE_LABEL, lineKey, type OrderableItem, type SizeKey, type AddonPick } from "@/lib/orders";
+import { inr } from "@/lib/format";
 import { TABLE_COUNT } from "@/lib/tables";
 import { usePresence } from "@/lib/presence";
 import StaffGate, { useStaffGate } from "@/components/StaffGate";
@@ -22,7 +23,6 @@ type Ord = {
   payment?: { method: "counter" | "upi"; state: string };
   createdAt?: Timestamp;
 };
-const inr = (n: number) => "₹" + (n ?? 0).toLocaleString("en-IN");
 
 type BillLine = { item: OrderableItem; size: SizeKey | null; temp: "hot" | "iced" | null; addons: AddonPick[]; qty: number };
 const SIZES: SizeKey[] = ["s", "m", "l"];
@@ -89,9 +89,15 @@ function Till({ user }: { user: User | null }) {
 
   function tapItem(item: OrderableItem) {
     setBill((prev) => {
-      const i = prev.findIndex((b) => b.item.id === item.id && b.addons.length === 0);
+      // a fresh tap rings up the item's default config (M / iced / no add-ons)
+      const size: SizeKey | null = item.prices ? "m" : null;
+      const temp: "hot" | "iced" | null = item.tempChoice ? "iced" : null;
+      // only merge when the FULL line config matches (id + size + temp + add-ons),
+      // exactly like the customer cart — different size/temp/add-ons = a new line
+      const key = lineKey(item.id, size, temp, []);
+      const i = prev.findIndex((b) => lineKey(b.item.id, b.size, b.temp, b.addons) === key);
       if (i >= 0) return prev.map((b, j) => (j === i ? { ...b, qty: b.qty + 1 } : b));
-      return [...prev, { item, size: item.prices ? "m" : null, temp: item.tempChoice ? "iced" : null, addons: [], qty: 1 }];
+      return [...prev, { item, size, temp, addons: [], qty: 1 }];
     });
   }
 
@@ -155,6 +161,16 @@ function Till({ user }: { user: User | null }) {
       setOrders(s.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Ord, "id">) })))
     );
   }, [admin]);
+
+  if (!firebaseEnabled)
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-forest-950 p-8 text-center">
+        <div>
+          <p className="font-display text-2xl font-bold text-cream">Cashier</p>
+          <p className="mt-2 font-body text-sm text-cream/55">Firebase isn&rsquo;t configured yet — add the NEXT_PUBLIC_FIREBASE_* env vars (see FIREBASE-SETUP.md), then reload.</p>
+        </div>
+      </main>
+    );
 
   if (!admin)
     return (

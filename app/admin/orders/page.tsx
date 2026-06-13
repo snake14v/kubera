@@ -19,6 +19,7 @@ import OrderEditor, { type EditableOrder } from "@/components/OrderEditor";
 import StaffGate, { useStaffGate } from "@/components/StaffGate";
 import { type StaffMember } from "@/lib/staff";
 import { orderCode, SIZE_LABEL, type SizeKey } from "@/lib/orders";
+import { inr } from "@/lib/format";
 
 type Line = {
   name: string;
@@ -58,8 +59,6 @@ const STATUS_COLOR: Record<Order["status"], string> = {
   done: "#5A4636",
   cancelled: "#5A4636",
 };
-
-const inr = (n: number) => "₹" + (n ?? 0).toLocaleString("en-IN");
 
 export default function OrdersAdmin() {
   return <AdminGuard title="Orders">{(user) => <GatedOrders user={user} />}</AdminGuard>;
@@ -148,7 +147,7 @@ function OrdersInner({ user }: { user: User }) {
 
       <div className="mt-8 grid gap-4 lg:grid-cols-2">
         {active.length === 0 && (
-          <p className="font-body text-cream/45">No active orders. They'll appear here the moment someone hits “Place order”.</p>
+          <p className="font-body text-cream/45">No active orders. They&rsquo;ll appear here the moment someone hits “Place order”.</p>
         )}
         {active.map((o) => (
           <div key={o.id} className="rounded-sm border border-cream/10 bg-forest-850 p-5">

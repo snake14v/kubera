@@ -1,5 +1,6 @@
 // Ordering domain model — shared by the /order flow, admin console, and rules.
 
+import { BRAND } from "./brand";
 import {
   matchaCollection,
   matchaPrices,
@@ -127,9 +128,9 @@ export function cartTotal(lines: CartLine[]): number {
 
 export type OrderType = "dinein" | "pickup" | "delivery";
 
-// Default store location (approx pin) — override via env / brand config.
-export const SHOP = { lat: 12.9145, lng: 77.6101 };
-export const DELIVERY_RADIUS_KM = 4;
+// Store location + delivery radius — configured via BRAND.business (env-driven).
+export const SHOP = { lat: BRAND.business.geo.lat, lng: BRAND.business.geo.lng };
+export const DELIVERY_RADIUS_KM = BRAND.business.deliveryRadiusKm;
 
 export function haversineKm(aLat: number, aLng: number, bLat: number, bLng: number): number {
   const R = 6371;
@@ -149,7 +150,8 @@ export function orderableIdFor(name: string): string | null {
   return fuzzy ? fuzzy.id : null;
 }
 
-/** Short human order code from a Firestore doc id, e.g. ORB-4F7K. */
+/** Short human order code from a Firestore doc id, e.g. ORD-4F7K.
+ *  Prefix is deployer-configurable via NEXT_PUBLIC_ORDER_PREFIX. */
 export function orderCode(docId: string): string {
-  return "ORB-" + docId.slice(0, 4).toUpperCase();
+  return `${BRAND.business.orderPrefix}-` + docId.slice(0, 4).toUpperCase();
 }

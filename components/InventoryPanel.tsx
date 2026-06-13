@@ -13,6 +13,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { addDoc, arrayUnion, collection, deleteDoc, doc, onSnapshot, serverTimestamp, updateDoc, writeBatch } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useStaffGate } from "@/components/StaffGate";
+import { inr } from "@/lib/format";
 
 export const INV_CATEGORIES = ["Beans & Tea", "Matcha", "Dairy & Alt-milk", "Syrups & Sauces", "Juice Produce", "Bakery", "Packaging", "Cleaning", "Equipment", "Other"] as const;
 // Wastage reasons — each waste log also lands in ops_events so the owner's
@@ -32,7 +33,6 @@ type Purchase = {
 
 const field =
   "rounded-full border border-cream/15 bg-forest-900 px-4 py-2.5 font-body text-sm text-cream outline-none placeholder:text-cream/35 focus:border-gold-500";
-const inr = (n: number) => "₹" + Math.round(n ?? 0).toLocaleString("en-IN");
 
 export default function InventoryPanel() {
   const { requireOperator } = useStaffGate();

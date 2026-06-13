@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
+import { BRAND } from "@/lib/brand";
 import { auth, firebaseEnabled } from "@/lib/firebase";
 import AuthPanel from "./AuthPanel";
 import PageHeader from "./PageHeader";
@@ -75,9 +76,9 @@ export default function RewardsContent() {
   return (
     <>
       <PageHeader
-        eyebrow="Orbéan Rewards"
+        eyebrow={`${BRAND.business.name} Rewards`}
         title={<>Good coffee, <span className="rgb-text">earned back.</span></>}
-        intro="Join Orbéan Rewards — every cup earns points toward free drinks. Sign in, show your QR at the bar, and watch it add up."
+        intro={`Join ${BRAND.business.name} Rewards — every cup earns points toward free drinks. Sign in, show your QR at the bar, and watch it add up.`}
         image="/menu-lattes.jpg"
         decor={
           <>
@@ -112,7 +113,9 @@ export default function RewardsContent() {
           ) : member && member.configured === false ? (
             <Notice
               title={`You're in, ${firstName(member.name)} ✦`}
-              body="Orbéan Rewards goes live with the shop on 12 July 2026. Your membership is saved to your Google account — points start the day we open."
+              body={`${BRAND.business.name} Rewards goes live with the shop${
+                BRAND.business.opening ? ` — ${BRAND.business.opening}` : ""
+              }. Your membership is saved to your Google account — points start the day we open.`}
             />
           ) : member ? (
             <MemberCard member={member} onSignOut={() => auth && signOut(auth)} />
@@ -149,7 +152,7 @@ function MemberCard({ member, onSignOut }: { member: Member; onSignOut: () => vo
           <div className="relative flex items-start justify-between">
             <div>
               <p className="font-display text-lg font-bold tracking-tight text-cream">
-                ORB<span className="text-gold-500">É</span>AN
+                {BRAND.business.name.toUpperCase()}
                 <span className="ml-2 align-middle font-body text-[10px] font-bold uppercase tracking-brand text-cream/40">Rewards</span>
               </p>
               <p className="mt-1 font-body text-sm text-cream/60">{member.name}</p>
@@ -184,7 +187,7 @@ function MemberCard({ member, onSignOut }: { member: Member; onSignOut: () => vo
           <p className="font-body text-[11px] font-bold uppercase tracking-brand text-gold-500">Show at the bar</p>
           {member.qr ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={member.qr} alt="Your Orbéan member QR" className="mt-4 h-44 w-44 rounded-sm" />
+            <img src={member.qr} alt={`Your ${BRAND.business.name} member QR`} className="mt-4 h-44 w-44 rounded-sm" />
           ) : (
             <div className="mt-4 flex h-44 w-44 items-center justify-center rounded-sm border border-cream/15 font-body text-sm text-cream/40">
               QR pending

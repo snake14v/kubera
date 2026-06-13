@@ -1,4 +1,4 @@
-// Orbéan line-icon set — 24x24, stroke=currentColor (colour via text-* class).
+// Kubera line-icon set — 24x24, stroke=currentColor (colour via text-* class).
 import type { SVGProps } from "react";
 
 const base: SVGProps<SVGSVGElement> = {

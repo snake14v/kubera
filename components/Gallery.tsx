@@ -1,6 +1,7 @@
 import Reveal from "./Reveal";
 import { Eyebrow } from "./ui";
 import Carousel, { type Slide } from "./Carousel";
+import { BRAND } from "@/lib/brand";
 
 const slides: Slide[] = [
   { src: "/space-1.jpg", caption: "The brew bar, in the open" },
@@ -30,7 +31,7 @@ export default function Gallery() {
 
         <Reveal delay={0.1}>
           <p className="mt-4 font-body text-xs text-cream/40">
-            Renders shown — the real thing opens 12 July 2026. Get on the list to
+            Renders shown{BRAND.business.opening ? ` — the real thing: ${BRAND.business.opening}` : ""}. Get on the list to
             see it first.
           </p>
         </Reveal>

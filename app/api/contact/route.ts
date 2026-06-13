@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { BRAND } from "@/lib/brand";
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
@@ -24,7 +25,7 @@ export async function POST(req: Request) {
 
     const key = process.env.RESEND_API_KEY;
     const to = process.env.WAITLIST_TO;
-    const from = process.env.WAITLIST_FROM || "Orbéan <onboarding@resend.dev>";
+    const from = process.env.WAITLIST_FROM || `${BRAND.business.name} <onboarding@resend.dev>`;
 
     if (!key || !to) {
       console.warn("[contact] not configured — message not emailed:", { name, email });
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
       from,
       to,
       reply_to: email,
-      subject: `Orbéan enquiry from ${name}`,
+      subject: `${BRAND.business.name} enquiry from ${name}`,
       text: `From: ${name} <${email}>\n\n${message}\n\nReceived: ${new Date().toISOString()}`,
     });
 

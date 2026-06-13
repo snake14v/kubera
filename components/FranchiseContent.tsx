@@ -8,6 +8,7 @@ import { FeatureCard, CheckList, Steps } from "./animated";
 import { CrownIcon, LeafIcon, CapIcon, RocketIcon, ChatIcon, UsersIcon, DocIcon } from "./icons";
 import { motion, useReducedMotion } from "framer-motion";
 import { waLink, EMAIL } from "@/lib/contact";
+import { BRAND } from "@/lib/brand";
 
 const offer = [
   { icon: <CrownIcon className="h-6 w-6" />, title: "A brand that stands out", note: "Premium, design-led and unmistakable — not another lookalike cafe.", accent: "#E0A23C" },
@@ -20,7 +21,7 @@ const steps = [
   { icon: <ChatIcon className="h-6 w-6" />, title: "Enquire", note: "Message us your city and a bit about you." },
   { icon: <UsersIcon className="h-6 w-6" />, title: "Discovery call", note: "We talk fit, location and the numbers." },
   { icon: <DocIcon className="h-6 w-6" />, title: "Franchise pack", note: "The model, costs and the full playbook." },
-  { icon: <RocketIcon className="h-6 w-6" />, title: "Open your Orbéan", note: "Site, fit-out and launch support." },
+  { icon: <RocketIcon className="h-6 w-6" />, title: `Open your ${BRAND.business.name}`, note: "Site, fit-out and launch support." },
 ];
 
 const fit = [
@@ -32,14 +33,14 @@ const fit = [
 
 export default function FranchiseContent() {
   const reduce = useReducedMotion();
-  const enquire = waLink("Hi Orbéan, I'm interested in a franchise. My city / location is:");
+  const enquire = waLink(`Hi ${BRAND.business.name}, I'm interested in a franchise. My city / location is:`);
 
   return (
     <>
       <PageHeader
         eyebrow="Franchise Program"
-        title={<>Bring Orbéan <span className="rgb-text">to your city.</span></>}
-        intro="We're building Orbéan to travel — same craft, same standard, same gold-on-green soul. If you want to bring a premium coffee & juice house to your neighbourhood, let's talk."
+        title={<>Bring {BRAND.business.name} <span className="rgb-text">to your city.</span></>}
+        intro={`We're building ${BRAND.business.name} to travel — same craft, same standard, same gold-on-green soul. If you want to bring a premium coffee & juice house to your neighbourhood, let's talk.`}
         image="/space-2.jpg"
         decor={
           <>
@@ -110,7 +111,7 @@ export default function FranchiseContent() {
                   Enquire on WhatsApp
                   <span className="transition-transform duration-300 group-hover:translate-x-1">→</span>
                 </a>
-                <a href={`mailto:${EMAIL}?subject=Orb%C3%A9an%20Franchise%20Enquiry`} className="inline-flex items-center rounded-full border border-gold-500/40 px-7 py-3.5 font-body text-[11px] font-bold uppercase tracking-brand text-gold-400 transition-colors hover:border-gold-500">
+                <a href={`mailto:${EMAIL}?subject=${encodeURIComponent(`${BRAND.business.name} Franchise Enquiry`)}`} className="inline-flex items-center rounded-full border border-gold-500/40 px-7 py-3.5 font-body text-[11px] font-bold uppercase tracking-brand text-gold-400 transition-colors hover:border-gold-500">
                   Email us
                 </a>
               </div>

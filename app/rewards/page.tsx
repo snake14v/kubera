@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
+import { BRAND } from "@/lib/brand";
 import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import RewardsContent from "@/components/RewardsContent";
 
 export const metadata: Metadata = {
-  title: "Rewards — Orbéan Coffee",
+  title: `Rewards — ${BRAND.business.name}`,
   description:
-    "Join Orbéan Rewards. Every cup earns points toward free drinks. Sign in with Google, show your member QR at the bar, and climb from Bean to Gold.",
+    `Join ${BRAND.business.name} Rewards. Every cup earns points toward free drinks. Sign in with Google, show your member QR at the bar, and climb from Bean to Gold.`,
 };
 
 export default function RewardsPage() {

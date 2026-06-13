@@ -1,5 +1,5 @@
 /* Coffee loading screen — a cup that fills with espresso, steam wisps,
-   and the ORBÉAN wordmark with the running-gold sweep. Pure CSS animation
+   and the brand wordmark with the running-gold sweep. Pure CSS animation
    (no rAF dependence). Used by app/loading.tsx and the intro Splash. */
 
 export default function BrewLoader({ tagline = "Brewing…" }: { tagline?: string }) {

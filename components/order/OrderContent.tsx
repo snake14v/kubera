@@ -8,6 +8,7 @@ import { onAuthStateChanged, type User } from "firebase/auth";
 import { addDoc, collection, doc, getDoc, onSnapshot, serverTimestamp, setDoc, updateDoc } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 import { BRAND } from "@/lib/brand";
+import { inr } from "@/lib/format";
 import { memberCodeFor } from "@/lib/loyalty";
 import { resolveCoupon, BUILTIN_COUPONS, type Coupon } from "@/lib/coupons";
 import {
@@ -47,8 +48,6 @@ const MapPicker = dynamic(() => import("./MapPicker"), {
     </div>
   ),
 });
-
-const inr = (n: number) => "₹" + n.toLocaleString("en-IN");
 
 type PlacedInfo = {
   code: string;
@@ -183,7 +182,7 @@ function Inner() {
   return (
     <div className="mx-auto max-w-7xl px-5 pb-32 sm:px-8">
       <div className="py-10 sm:py-14">
-        <Eyebrow>{tableParam ? `Table ${tableParam} · dine-in` : "Order Orbéan"}</Eyebrow>
+        <Eyebrow>{tableParam ? `Table ${tableParam} · dine-in` : `Order ${BRAND.business.name}`}</Eyebrow>
         <h1 className="mt-3 font-display text-4xl font-bold tracking-tight text-cream sm:text-5xl">
           {step === "done" ? "Order placed." : tableParam ? "Order to your table." : "What are you craving?"}
         </h1>
@@ -1290,7 +1289,7 @@ function Done({ code, orderId, type, memberCode, payable, method, vpa }: PlacedI
           <p className="font-body text-[11px] font-bold uppercase tracking-brand text-gold-500">Earn your beans</p>
           {qr && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={qr} alt="Your Orbéan member QR" className="mt-3 h-40 w-40 rounded-sm" />
+            <img src={qr} alt={`Your ${BRAND.business.name} member QR`} className="mt-3 h-40 w-40 rounded-sm" />
           )}
           <p className="mt-3 font-mono text-sm tracking-widest text-cream/70">{memberCode}</p>
           <p className="mt-1 font-body text-xs text-cream/40">Show this at the counter with your order.</p>

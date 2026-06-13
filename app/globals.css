@@ -4,6 +4,19 @@
 
 :root {
   color-scheme: dark;
+
+  /* Default theme palette (RGB channels for `rgb(var(--x) / <alpha>)`).
+     app/layout.tsx overrides these from BRAND.theme / NEXT_PUBLIC_COLOR_*. */
+  --c-forest-950: 13 14 8;
+  --c-forest-900: 16 18 8;
+  --c-forest-850: 20 22 14;
+  --c-forest-800: 27 30 18;
+  --c-gold-700: 142 101 45;
+  --c-gold-500: 181 149 86;
+  --c-gold-400: 214 182 147;
+  --c-cream: 232 223 201;
+  --c-emerald-500: 62 124 90;
+  --c-rose: 210 75 90;
 }
 
 html {
@@ -30,7 +43,7 @@ label {
 
 /* A11y: visible keyboard focus, quiet for mouse users */
 :focus-visible {
-  outline: 2px solid #b59556;
+  outline: 2px solid rgb(var(--c-gold-500));
   outline-offset: 2px;
   border-radius: 4px;
 }

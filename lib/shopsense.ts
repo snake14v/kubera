@@ -1,7 +1,9 @@
-// ShopSense — Orbéan's first deployment (pilot zero).
+// ShopSense — the commercial hardware analytics layer.
 // Edge nodes (ESP32 SENSE/TRACK) POST footfall/occupancy events to /api/shopsense/ingest;
 // Loyverse provides the POS revenue feed. This module holds the shared types, a deterministic
 // demo generator (so the console is alive before hardware lands), and metric helpers.
+
+import { BRAND } from "./brand";
 
 export type HourPoint = { hour: string; footfall: number; sales: number };
 export type DayPoint = { day: string; footfall: number; sales: number };
@@ -25,7 +27,7 @@ export type Device = {
 
 export type ShopSenseData = {
   mode: "demo" | "live";
-  generatedFor: string; // label, e.g. "Orbéan · BTM"
+  generatedFor: string; // label, e.g. "Acme Café · Demo"
   kpis: {
     footfallToday: number;
     occupancy: number;
@@ -77,7 +79,7 @@ export function demoData(peak = 64): ShopSenseData {
 
   return {
     mode: "demo",
-    generatedFor: "Orbéan · BTM",
+    generatedFor: `${BRAND.business.name} · Demo`,
     kpis: {
       footfallToday,
       occupancy: 31,

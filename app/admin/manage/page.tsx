@@ -1,6 +1,6 @@
 "use client";
 
-// Orbéan admin manager — Cha Angadi-style tabbed panel (minus the AI chatbot):
+// Admin manager — tabbed panel:
 // Menu CRUD · Offers · Coupons · Customers · Feedback · Settings.
 
 import { useEffect, useState } from "react";
@@ -292,7 +292,7 @@ function CouponsTab() {
           </div>
           <input className={field} placeholder="Min order ₹ (optional)" type="number" value={form.minOrder} onChange={(e) => setForm({ ...form, minOrder: e.target.value })} />
           <button onClick={add} className={btnGold}>Create</button>
-          <p className="font-body text-xs text-cream/40">Built-ins (WELCOME10, ORBEAN50, MATCHA15, OPENINGDAY) live in code; these add to them.</p>
+          <p className="font-body text-xs text-cream/40">Built-ins (WELCOME10, FLAT50, SAVE15, OPENINGDAY) live in code; these add to them.</p>
         </div>
       </div>
       <div className="space-y-2">
@@ -524,12 +524,12 @@ function SettingsTab() {
       </div>
       <div>
         <p className="font-display text-base font-bold text-cream">Site banner</p>
-        <input className={field + " mt-2"} placeholder="e.g. Grand opening 12 July — first 100 cups free!" value={banner} onChange={(e) => setBanner(e.target.value)} />
+        <input className={field + " mt-2"} placeholder="e.g. Today's special — first 100 cups free!" value={banner} onChange={(e) => setBanner(e.target.value)} />
       </div>
       <div>
         <p className="font-display text-base font-bold text-cream">UPI VPA (your own gateway)</p>
         <p className="font-body text-xs text-cream/45">
-          The shop&rsquo;s UPI ID (e.g. <span className="font-mono">orbean@okhdfcbank</span>). When set, checkout offers
+          The shop&rsquo;s UPI ID (e.g. <span className="font-mono">yourshop@okhdfcbank</span>). When set, checkout offers
           &ldquo;Pay now · UPI&rdquo; — a zero-fee intent link + QR straight to your bank. Blank = counter payment only.
         </p>
         <input className={field + " mt-2 font-mono"} placeholder="yourshop@bank" value={upiVpa} onChange={(e) => setUpiVpa(e.target.value)} />

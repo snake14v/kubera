@@ -8,6 +8,23 @@ and paste the config. ~10 minutes, one time.
 > The app also runs **without** Firebase (the storefront renders in "no backend"
 > mode). Firebase powers accounts, ordering, and the counter suite.
 
+## ⚡ Fast path — the setup script
+
+After creating the Firebase project (steps 1–2 below give you the config to
+paste), run the guided setup. It fills `.env.local` with **your** details and
+patches `firestore.rules` with your admin email automatically:
+
+```bash
+npm run setup          # interactive — paste your firebaseConfig, answer a few prompts
+npm run check:setup    # verify nothing's missing before you deploy
+```
+
+Flags: `--quick` (essentials only) · `--defaults` (demo, no prompts) ·
+`--dry-run` (preview, write nothing). The script generates a secure
+`SHOPSENSE_INGEST_TOKEN`, backs up any existing `.env.local`, and (for multiple
+admins) writes `email in [...]` into `isAdmin()`. Prefer the manual route? The
+steps below still work by hand.
+
 ## 1. Create the project
 1. Go to https://console.firebase.google.com → **Add project** → name it
    `kubera` (or anything). Analytics is optional.

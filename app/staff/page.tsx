@@ -1,6 +1,6 @@
 "use client";
 
-// ORBÉAN STAFF PORTAL — the 4th counter tablet.
+// STAFF PORTAL — the 4th counter tablet.
 // Big-tile hub: PIN check-in/out, digital shift forms (FRM-01/03/07/08),
 // captain-style live order board, ShopSense console. Designed for fingers.
 
@@ -925,7 +925,7 @@ function BreachLog({
         <button onClick={add} className={btnGold}>Log breach</button>
       </div>
       <p className="mt-4 font-body text-xs text-cream/40">
-        Recurring peak-hour breaches ring the 2-group upgrade bell — that's how the machine gets bigger.
+        Recurring peak-hour breaches ring the 2-group upgrade bell — that&rsquo;s how the machine gets bigger.
       </p>
     </div>
   );
@@ -1134,7 +1134,7 @@ function OrdersBoard({ user, onBreach }: { user: User | null; onBreach: (code: s
       <div className="mx-auto max-w-md rounded-lg border border-gold-500/30 bg-forest-900 p-8 text-center">
         <p className="font-display text-xl font-bold">Shop account needed</p>
         <p className="mt-2 font-body text-sm text-cream/60">
-          The live board reads real orders — sign this tablet in once with the shop's Google account.
+          The live board reads real orders — sign this tablet in once with the shop&rsquo;s Google account.
         </p>
         <a href="/login" className={btnGold + " mt-5 inline-block"}>Sign in →</a>
       </div>

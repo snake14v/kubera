@@ -23,6 +23,8 @@ import { auth, db } from "@/lib/firebase";
 import { memberCodeFor, phoneKey } from "@/lib/loyalty";
 import { orderCode, SIZE_LABEL, type SizeKey } from "@/lib/orders";
 import { Eyebrow } from "@/components/ui";
+import { inr } from "@/lib/format";
+import { BRAND } from "@/lib/brand";
 
 type Order = {
   id: string;
@@ -53,7 +55,6 @@ const STATUS_COLOR: Record<string, string> = {
   cancelled: "#D24B5A",
 };
 
-const inr = (n: number) => "₹" + (n ?? 0).toLocaleString("en-IN");
 const field =
   "w-full rounded-full border border-cream/15 bg-forest-850/80 px-5 py-3 font-body text-sm text-cream outline-none transition-colors placeholder:text-cream/40 focus:border-gold-500";
 
@@ -259,7 +260,7 @@ function DashboardInner({ user }: { user: User }) {
           {collectibles.map((c) => (
             <div key={c.id} className="w-[150px] shrink-0 rounded-xl p-1.5" style={{ backgroundColor: c.tier?.color ?? "#F4ECDD", color: c.tier?.ink ?? "#14160E" }}>
               <div className="flex h-[190px] flex-col items-center justify-between rounded-lg border-2 p-2.5" style={{ borderColor: (c.tier?.ink ?? "#14160E") + "66", backgroundColor: "#14160E" }}>
-                <p className="font-display text-[9px] font-bold tracking-widest" style={{ color: c.tier?.color }}>ORBÉAN · COLLECT</p>
+                <p className="font-display text-[9px] font-bold tracking-widest" style={{ color: c.tier?.color }}>{BRAND.business.name.toUpperCase()} · COLLECT</p>
                 <StickerGlass
                   name={c.drink?.name ?? "House Brew"}
                   addons={(c.drink?.addons ?? []).filter((n) => !/sugar|sweet/i.test(n))}

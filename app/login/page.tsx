@@ -10,6 +10,7 @@ import Reveal from "@/components/Reveal";
 import { Eyebrow } from "@/components/ui";
 import { OrbitRings } from "@/components/Decor";
 import { auth } from "@/lib/firebase";
+import { BRAND } from "@/lib/brand";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -36,7 +37,7 @@ export default function LoginPage() {
         />
         <div className="relative mx-auto grid min-h-[70vh] max-w-7xl items-center gap-14 px-5 py-20 sm:px-8 lg:grid-cols-2">
           <Reveal>
-            <Eyebrow>Your Orbéan account</Eyebrow>
+            <Eyebrow>Your {BRAND.business.name} account</Eyebrow>
             <h1 className="mt-4 font-display text-4xl font-bold tracking-tight text-cream sm:text-5xl">
               One account.
               <br />

@@ -1,26 +1,41 @@
 rules_version = '2';
 
 // Kubera Firestore security rules.
-// Replace every `you@example.com` below with YOUR Google account (the one you
-// sign into /admin with) — it must match NEXT_PUBLIC_ADMIN_EMAILS. Tip: a
-// find-and-replace across this file is the fastest way.
+//
+// ▶ ONE-LINE SETUP: replace `you@example.com` in isAdmin() below with YOUR
+//   Google account (the one you sign into /admin with). It must match
+//   NEXT_PUBLIC_ADMIN_EMAILS. That single edit drives every admin check here.
+//   (example.com is intentionally unregistrable, so an un-edited deploy
+//   fails CLOSED — no one is admin — rather than open.)
 // Deploy: Firebase Console → Firestore Database → Rules → paste → Publish
 //   (or: firebase deploy --only firestore:rules).
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // ── Single source of truth for the owner/admin identity. Add more
+    //    accounts with: request.auth.token.email in ['a@x.com','b@x.com']. ──
+    function isAdmin() {
+      return request.auth != null
+             && request.auth.token.email == 'you@example.com';
+    }
+
     // Waitlist signups: anyone may add their email; only the admin can read.
     match /waitlist/{doc} {
       allow create: if request.resource.data.email is string
                     && request.resource.data.email.size() < 200;
-      allow read:   if request.auth != null
-                    && request.auth.token.email == 'you@example.com';
+      allow read:   if isAdmin();
       allow update, delete: if false;
     }
 
     // Customer orders: anyone may place a shaped order; only the admin reads
     // and updates status. No client deletes.
+    //
+    // ⚠ TRUST BOUNDARY: rules cannot recompute Σ(unitPrice·qty) over a
+    //   variable-length list, so `total` here is shape-checked, not verified
+    //   against the catalogue. For a money-handling deployment, route order
+    //   creation through a trusted server (Admin SDK) that recomputes total +
+    //   re-resolves the coupon and rejects mismatches. See lib/coupons.ts.
     match /orders/{doc} {
       allow create: if request.resource.data.keys().hasAll(['type','lines','total','name','phone','status'])
                     && request.resource.data.type in ['dinein','pickup','delivery']
@@ -28,7 +43,7 @@ service cloud.firestore {
                     // 'new'; customer DINE-IN starts 'pending' — the waiter
                     // must approve before the kitchen sees it. Customer
                     // pickup/delivery go straight to 'new'.
-                    && ((request.auth != null && request.auth.token.email == 'you@example.com'
+                    && ((isAdmin()
                          && request.resource.data.status in ['new', 'pending'])
                         || (request.resource.data.type == 'dinein' && request.resource.data.status == 'pending')
                         || (request.resource.data.type != 'dinein' && request.resource.data.status == 'new'))
@@ -37,6 +52,7 @@ service cloud.firestore {
                     && request.resource.data.lines.size() <= 40
                     && request.resource.data.total is number
                     && request.resource.data.total >= 0
+                    && request.resource.data.total <= 1000000 // sanity cap
                     && request.resource.data.name is string
                     && request.resource.data.name.size() <= 80
                     && request.resource.data.phone is string
@@ -46,43 +62,39 @@ service cloud.firestore {
                     // server-side). Staff/cashier (shop account) are exempt.
                     // Pickup/delivery need no key.
                     && (request.resource.data.type != 'dinein'
-                        || (request.auth != null && request.auth.token.email == 'you@example.com')
+                        || isAdmin()
                         || (request.resource.data.tableKey is string
                             && exists(/databases/$(database)/documents/table_codes/$(request.resource.data.table))
                             && get(/databases/$(database)/documents/table_codes/$(request.resource.data.table)).data.code == request.resource.data.tableKey));
       // Admin reads/updates everything; customers read their own orders.
-      allow read: if request.auth != null
-                    && (request.auth.token.email == 'you@example.com'
-                        || resource.data.uid == request.auth.uid);
-      // Customers may ONLY flip their payment claim ("I've paid via UPI") —
-      // nothing else. Verification stays manual until the bank API lands.
-      allow update: if (request.auth != null
-                        && request.auth.token.email == 'you@example.com')
+      allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      // Customers may ONLY flip their payment claim ("I've paid via UPI") and
+      // only once, pending→claimed, on a UPI order — nothing else. Verification
+      // stays manual until the bank API lands.
+      allow update: if isAdmin()
                     || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['payment'])
+                        && resource.data.payment.method == 'upi'
+                        && resource.data.payment.state == 'pending'
                         && request.resource.data.payment.state == 'claimed');
       allow delete: if false;
     }
 
     // User profiles — auto-links email ↔ phone ↔ member QR. Owner + admin.
     match /users/{uid} {
-      allow read: if request.auth != null
-                  && (request.auth.uid == uid
-                      || request.auth.token.email == 'you@example.com');
+      allow read: if request.auth != null && (request.auth.uid == uid || isAdmin());
       allow write: if request.auth != null && request.auth.uid == uid;
     }
 
     // Menu overrides & custom items — site reads; admin writes.
     match /menu_admin/{doc} {
       allow read: if true;
-      allow write: if request.auth != null
-                   && request.auth.token.email == 'you@example.com';
+      allow write: if isAdmin();
     }
 
     // Offers / featured banners — site reads; admin writes.
     match /offers/{doc} {
       allow read: if true;
-      allow write: if request.auth != null
-                   && request.auth.token.email == 'you@example.com';
+      allow write: if isAdmin();
     }
 
     // Customer feedback — anyone may submit; admin reads.
@@ -90,49 +102,42 @@ service cloud.firestore {
       allow create: if request.resource.data.message is string
                     && request.resource.data.message.size() > 0
                     && request.resource.data.message.size() < 2000;
-      allow read: if request.auth != null
-                  && request.auth.token.email == 'you@example.com';
+      allow read: if isAdmin();
       allow update, delete: if false;
     }
 
     // Site settings (ordering on/off, banner text) — site reads; admin writes.
     match /settings/{doc} {
       allow read: if true;
-      allow write: if request.auth != null
-                   && request.auth.token.email == 'you@example.com';
+      allow write: if isAdmin();
     }
 
     // Table sittings (floor view) — seat→leave log per table. Written only
     // from staff/admin surfaces, which ride the shop Google account.
     match /table_sessions/{doc} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null
-                   && request.auth.token.email == 'you@example.com';
+      allow create, update, delete: if isAdmin();
     }
 
     // Per-table secret codes baked into each table's QR. NOT public-read
     // (a hacker mustn't enumerate them); rules get()/exists() still validate
     // dine-in orders server-side. Admin reads/writes via the QR generator.
     match /table_codes/{t} {
-      allow read, write: if request.auth != null
-                         && request.auth.token.email == 'you@example.com';
+      allow read, write: if isAdmin();
     }
 
     // Inventory + vendor book — staff surfaces (shop account) write,
     // PIN identity enforced in-app via the operator gate + item logs.
     match /inventory/{doc} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null
-                   && request.auth.token.email == 'you@example.com';
+      allow create, update, delete: if isAdmin();
     }
     // Ops events — wastage (and future exception kinds) for the owner's
     // exceptions board. Staff tablets ride the shop account.
     match /ops_events/{doc} {
-      allow read: if request.auth != null
-                   && request.auth.token.email == 'you@example.com';
+      allow read: if isAdmin();
       // append-only financial feed: shape-checked, never edited or deleted
-      allow create: if request.auth != null
-                   && request.auth.token.email == 'you@example.com'
+      allow create: if isAdmin()
                    && request.resource.data.kind is string
                    && request.resource.data.amount is number
                    && request.resource.data.amount >= 0
@@ -144,68 +149,71 @@ service cloud.firestore {
     // Studio (shop account). Guests read their own via uid/member/phone match.
     match /collectibles/{doc} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null
-                   && request.auth.token.email == 'you@example.com';
+      allow create, update, delete: if isAdmin();
     }
     // Purchases ledger — vendor bills, PAID vs DUE tracking (accounts only;
     // actual payments happen outside the system).
     match /purchases/{doc} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null
-                   && request.auth.token.email == 'you@example.com';
+      allow create, update, delete: if isAdmin();
     }
     match /vendors/{doc} {
       allow read: if true;
-      allow create, update, delete: if request.auth != null
-                   && request.auth.token.email == 'you@example.com';
+      allow create, update, delete: if isAdmin();
     }
 
     // Tablet presence mesh — label + page + heartbeat timestamp only.
+    // Must be a signed-in (shop-account) tablet so anonymous spam can't flood
+    // the mesh; the presence writers (cashier/cds/kds/staff) already are.
     match /device_sessions/{doc} {
       allow read: if true;
-      allow write: if request.resource.data.keys().hasOnly(['label','page','lastSeen'])
+      allow write: if request.auth != null
+                   && request.resource.data.keys().hasOnly(['label','page','lastSeen'])
                    && request.resource.data.label is string
                    && request.resource.data.label.size() <= 60;
     }
 
     // Staff roster — names/roles + hashed PINs only. Portal reads; admin writes.
+    // (PINs are attendance-grade attribution, NOT a security boundary — the
+    // real boundary is the shop Google account. See SECURITY.md.)
     match /staff_members/{doc} {
       allow read: if true;
-      allow write: if request.auth != null
-                   && request.auth.token.email == 'you@example.com';
+      allow write: if isAdmin();
     }
 
-    // Attendance — created/closed from the tablet portal (PIN-gated in app).
-    // Integrity check: the staffId must be a real roster member and the name
-    // must match that doc — blocks mismatched id↔name records. (PIN verify is
-    // client-side / attendance-grade by design.)
+    // Attendance — created/closed from the signed-in tablet portal. Requires
+    // the shop account (matching the rest of the staff surfaces) so attendance
+    // records can't be forged by anonymous clients. Integrity check: the
+    // staffId must be a real roster member whose name matches the record.
     match /attendance/{doc} {
       allow read: if true;
-      allow create: if request.resource.data.keys().hasAll(['staffId','name','date'])
+      allow create: if isAdmin()
+                    && request.resource.data.keys().hasAll(['staffId','name','date'])
                     && request.resource.data.name is string
                     && request.resource.data.name.size() <= 80
                     && exists(/databases/$(database)/documents/staff_members/$(request.resource.data.staffId))
                     && get(/databases/$(database)/documents/staff_members/$(request.resource.data.staffId)).data.name == request.resource.data.name;
-      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['outAt']);
-      allow delete: if request.auth != null
-                    && request.auth.token.email == 'you@example.com';
+      allow update: if isAdmin()
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['outAt']);
+      allow delete: if isAdmin();
     }
 
-    // Digital shift forms (FRM-01/03/07/08) — tablet creates; admin deletes.
-    // When the submission carries a staffId (operator-signed), it must point
-    // at a real roster member whose name matches staffName.
+    // Digital shift forms (FRM-01/03/07/08) — signed-in tablet creates; admin
+    // deletes. When the submission carries a staffId (operator-signed), it must
+    // point at a real roster member whose name matches staffName.
     match /form_submissions/{doc} {
       allow read: if true;
-      allow create: if request.resource.data.keys().hasAll(['form','date','payload'])
+      allow create: if isAdmin()
+                    && request.resource.data.keys().hasAll(['form','date','payload'])
                     && request.resource.data.form in ['FRM-01','FRM-03','FRM-07','FRM-08']
                     && request.resource.data.date is string
                     && (!('staffId' in request.resource.data)
                         || (exists(/databases/$(database)/documents/staff_members/$(request.resource.data.staffId))
                             && get(/databases/$(database)/documents/staff_members/$(request.resource.data.staffId)).data.name == request.resource.data.staffName));
       // submissions stay immutable EXCEPT read-acknowledgements (handover ✓)
-      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['acks']);
-      allow delete: if request.auth != null
-                    && request.auth.token.email == 'you@example.com';
+      allow update: if isAdmin()
+                    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['acks']);
+      allow delete: if isAdmin();
     }
 
     // Coupons: clients fetch a code by exact id only (no listing). Admin writes
@@ -213,16 +221,15 @@ service cloud.firestore {
     match /coupons/{code} {
       allow get: if true;
       allow list: if false;
-      allow write: if request.auth != null
-                   && request.auth.token.email == 'you@example.com';
+      allow write: if isAdmin();
     }
 
-    // ShopSense edge events: created by the ingest API (gated by SHOPSENSE_INGEST_TOKEN),
-    // readable only by the admin.
+    // ShopSense edge events: written ONLY by the ingest API via the Admin SDK
+    // (gated by SHOPSENSE_INGEST_TOKEN). Direct client writes are denied so the
+    // bearer token is actually enforced at the data layer. Admin reads.
     match /shopsense_events/{doc} {
-      allow create: if true;
-      allow read:   if request.auth != null
-                    && request.auth.token.email == 'you@example.com';
+      allow create: if false;
+      allow read:   if isAdmin();
       allow update, delete: if false;
     }
 

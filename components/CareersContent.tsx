@@ -8,6 +8,7 @@ import { FeatureCard, CheckList, Steps } from "./animated";
 import { CupIcon, UsersIcon, GlassIcon, BadgeIcon, ChatIcon } from "./icons";
 import { motion, useReducedMotion } from "framer-motion";
 import { waLink } from "@/lib/contact";
+import { BRAND } from "@/lib/brand";
 
 const roles = [
   { icon: <CupIcon className="h-6 w-6" />, title: "Baristas", note: "Specialty espresso & matcha. Training provided — passion required.", accent: "#C99B6B" },
@@ -31,14 +32,14 @@ const perks = [
 
 export default function CareersContent() {
   const reduce = useReducedMotion();
-  const apply = waLink("Hi Orbéan, I'd like to apply for a role — here's a bit about me:");
+  const apply = waLink(`Hi ${BRAND.business.name}, I'd like to apply for a role — here's a bit about me:`);
 
   return (
     <>
       <PageHeader
         eyebrow="Careers"
-        title={<>Build Orbéan <span className="rgb-text">with us.</span></>}
-        intro="We open 12 July 2026, and we're assembling the founding team now. If you take coffee — and people — seriously, we'd love to meet you."
+        title={<>Build {BRAND.business.name} <span className="rgb-text">with us.</span></>}
+        intro={`${BRAND.business.opening ? `${BRAND.business.opening}, and we're` : "We're"} assembling the founding team now. If you take coffee — and people — seriously, we'd love to meet you.`}
         image="/space-1.jpg"
         decor={
           <>
@@ -80,11 +81,11 @@ export default function CareersContent() {
         </div>
       </section>
 
-      {/* Why Orbéan */}
+      {/* Why us */}
       <section className="bg-forest-950 py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
           <Reveal>
-            <Eyebrow>Why Orbéan</Eyebrow>
+            <Eyebrow>Why {BRAND.business.name}</Eyebrow>
             <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-cream sm:text-4xl">
               What you get from us.
             </h2>

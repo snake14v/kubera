@@ -1,5 +1,7 @@
 // TAB LAUNCHER — bookmark this on every counter tablet, pick its role once.
-export const metadata = { title: "Orbéan · Tablet launcher", robots: { index: false } };
+import { BRAND } from "@/lib/brand";
+
+export const metadata = { title: `${BRAND.business.name} · Tablet launcher`, robots: { index: false } };
 
 const TABS = [
   { href: "/cashier", title: "1 · Cashier", sub: "Takings, UPI verify, live queue", emoji: "💰", accent: "#E0A23C" },
@@ -13,7 +15,7 @@ const TABS = [
 export default function Tabs() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-forest-950 p-8 text-cream">
-      <p className="font-display text-3xl font-bold">ORB<span className="text-gold-400">É</span>AN <span className="text-gold-400">TABLETS</span></p>
+      <p className="font-display text-3xl font-bold">{BRAND.business.name} <span className="text-gold-400">TABLETS</span></p>
       <p className="mt-2 font-body text-sm text-cream/50">Five tabs, one stack. Open this tablet&rsquo;s role and pin it.</p>
       <div className="mt-8 grid w-full max-w-3xl gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {TABS.map((t) => (

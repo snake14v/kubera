@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { onAuthStateChanged, signInWithPopup, signOut, type User } from "firebase/auth";
 import { auth, googleProvider, firebaseEnabled, isAdmin } from "@/lib/firebase";
+import { BRAND } from "@/lib/brand";
 
 /** Wraps an admin area: Google sign-in + email allow-list. Renders children only for admins. */
 export default function AdminGuard({
@@ -33,7 +34,7 @@ export default function AdminGuard({
       <header className="border-b border-cream/10">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
           <a href="/admin" className="font-display text-lg font-bold tracking-tight text-cream">
-            ORB<span className="text-gold-500">É</span>AN
+            {BRAND.business.name}
             <span className="ml-2 align-middle font-body text-[10px] font-bold uppercase tracking-brand text-cream/40">{title}</span>
           </a>
           {user && (
@@ -46,7 +47,12 @@ export default function AdminGuard({
 
       <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8">
         {!firebaseEnabled ? (
-          <Notice title="Firebase isn't configured yet" body="Add the NEXT_PUBLIC_FIREBASE_* env vars (see FIREBASE-SETUP.md), then redeploy." />
+          <div className="max-w-xl">
+            <Notice title="Firebase isn't configured yet" body="Add the NEXT_PUBLIC_FIREBASE_* env vars (see FIREBASE-SETUP.md), then redeploy." />
+            <a href="/setup" className="mt-4 inline-block rounded-full bg-gold-500 px-5 py-2.5 font-body text-[11px] font-bold uppercase tracking-brand text-forest-950 transition-colors hover:bg-gold-700">
+              Open the setup wizard →
+            </a>
+          </div>
         ) : !ready ? (
           <p className="font-body text-cream/50">Loading…</p>
         ) : !user ? (

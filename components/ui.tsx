@@ -52,7 +52,7 @@ export function SectionHead({
   );
 }
 
-/** Thin gold hairline divider — the Orbéan section marker. */
+/** Thin gold hairline divider — the brand section marker. */
 export function GoldRule() {
   return <div className="mx-auto h-px w-16 bg-gold-500/50" />;
 }

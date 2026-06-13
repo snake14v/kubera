@@ -2,7 +2,7 @@
   "name": "Kubera — Cashier · CDS · KDS · Staff · Admin",
   "short_name": "Kubera",
   "description": "Open-source point of sale: cashier, customer display, kitchen display, staff & admin — all in one install. Open-sourced by Oorulogix.",
-  "start_url": "/tabs",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "any",

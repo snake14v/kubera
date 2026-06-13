@@ -30,6 +30,7 @@ import {
 } from "firebase/firestore";
 import { db, isAdmin } from "@/lib/firebase";
 import { orderCode, SIZE_LABEL, type SizeKey } from "@/lib/orders";
+import { inr } from "@/lib/format";
 import { useStaffGate } from "@/components/StaffGate";
 import { TABLE_COUNT, fmtClock, fmtDur, newTablePin, deadCode, type TableSession } from "@/lib/tables";
 
@@ -55,7 +56,6 @@ const CHIP: Record<string, { label: string; color: string }> = {
   done: { label: "SERVED ✓", color: "#8a9b8f" },
 };
 
-const inr = (n: number) => "₹" + (n ?? 0).toLocaleString("en-IN");
 /** createdAt millis, or null while the serverTimestamp write is in flight */
 const ms = (o: Ord): number | null => o.createdAt?.toMillis?.() ?? null;
 

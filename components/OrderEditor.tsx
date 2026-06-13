@@ -11,6 +11,7 @@
 import { useRef, useState } from "react";
 import { addDoc, arrayUnion, collection, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { inr } from "@/lib/format";
 
 type EditLine = {
   name: string;
@@ -45,8 +46,6 @@ export type EditableOrder = {
 
 /** Why a bill went on the house — feeds the owner's exceptions board. */
 const COMP_REASONS = ["Guest recovery", "Quality issue", "Staff drink", "Influencer / PR", "Owner treat"];
-
-const inr = (n: number) => "₹" + (n ?? 0).toLocaleString("en-IN");
 
 export default function OrderEditor({
   order,

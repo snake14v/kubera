@@ -1,5 +1,6 @@
 import Reveal from "./Reveal";
 import { Eyebrow } from "./ui";
+import { BRAND } from "@/lib/brand";
 
 export default function Story() {
   return (
@@ -11,7 +12,7 @@ export default function Story() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/story.jpg"
-              alt="An Orbéan signature matcha, spotlit on a dark surface"
+              alt={`A ${BRAND.business.name} signature matcha, spotlit on a dark surface`}
               className="aspect-[4/5] w-full object-cover"
             />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-forest-950/50 to-transparent" />
@@ -21,7 +22,7 @@ export default function Story() {
         {/* Copy */}
         <div className="lg:col-span-7 lg:py-6">
           <Reveal>
-            <Eyebrow>The Orbéan Story</Eyebrow>
+            <Eyebrow>The {BRAND.business.name} Story</Eyebrow>
             <h2 className="mt-4 font-display text-4xl font-bold tracking-tight text-cream sm:text-5xl">
               Sourced. Crafted. <span className="rgb-text">Poured with care.</span>
             </h2>
@@ -40,7 +41,7 @@ export default function Story() {
                 thing falls apart. We obsess over all four.&rdquo;
               </p>
               <footer className="mt-4 font-body text-[11px] font-bold uppercase tracking-brand text-cream/50">
-                — The Orbéan Team
+                — The {BRAND.business.name} Team
               </footer>
             </blockquote>
           </Reveal>

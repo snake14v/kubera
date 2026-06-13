@@ -1,6 +1,7 @@
 "use client";
 
 import { BRAND } from "./brand";
+import { moneyAscii } from "@/lib/format";
 
 // Bluetooth thermal printing (ESC/POS over Web Bluetooth GATT) — works on
 // Android Chrome tablets with common 58/80mm BT printers (FFE0/18F0/Goojprt
@@ -75,7 +76,6 @@ function build(parts: (number[] | string)[]): Uint8Array {
   for (const p of parts) out.push(...(typeof p === "string" ? enc.encode(p) : p));
   return new Uint8Array(out);
 }
-const rs = (n: number) => "Rs." + (n ?? 0).toLocaleString("en-IN");
 const line = "------------------------------\n";
 
 export type PrintLine = { name: string; size?: string | null; temp?: string | null; qty: number; unitPrice?: number };
@@ -88,8 +88,8 @@ export async function printReceipt(o: { code: string; lines: PrintLine[]; total:
       `${BRAND.business.addressLine1}\n${BRAND.business.addressLine2}\n`, line,
       ESC.bold, `${o.code}${o.table ? `  TABLE ${o.table}` : ""}\n`, ESC.unbold,
       new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata", hour12: true }) + "\n", line, ESC.left,
-      ...o.lines.map((l) => `${l.qty} x ${l.name}${l.size ? ` ${l.size.toUpperCase()}` : ""}${l.temp ? ` ${l.temp}` : ""}\n${l.unitPrice ? `      ${rs(l.unitPrice * l.qty)}\n` : ""}`),
-      line, ESC.bold, ESC.center, `TOTAL  ${rs(o.total)}\n`, ESC.unbold,
+      ...o.lines.map((l) => `${l.qty} x ${l.name}${l.size ? ` ${l.size.toUpperCase()}` : ""}${l.temp ? ` ${l.temp}` : ""}\n${l.unitPrice ? `      ${moneyAscii(l.unitPrice * l.qty)}\n` : ""}`),
+      line, ESC.bold, ESC.center, `TOTAL  ${moneyAscii(o.total)}\n`, ESC.unbold,
       (o.payment ?? "pay at counter") + "\n", line,
       `${BRAND.business.tagline}\npowered by ${BRAND.name} - open source POS\n`,
       ESC.feedCut,

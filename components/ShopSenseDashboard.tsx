@@ -4,10 +4,7 @@ import { useEffect, useState } from "react";
 import type { User } from "firebase/auth";
 import { demoData, statusColor, type ShopSenseData } from "@/lib/shopsense";
 import { KpiTile, BarChart, LineChart, Gauge } from "./charts";
-
-function inr(n: number) {
-  return "₹" + n.toLocaleString("en-IN");
-}
+import { inr } from "@/lib/format";
 
 export default function ShopSenseDashboard({ user }: { user: User }) {
   const [data, setData] = useState<ShopSenseData>(() => demoData());

@@ -13,6 +13,7 @@ import AdminNav from "@/components/AdminNav";
 import { KpiTile, BarChart, LineChart, Gauge } from "@/components/charts";
 import ExceptionsBoard from "@/components/ExceptionsBoard";
 import { fmtDur } from "@/lib/tables";
+import { inr } from "@/lib/format";
 
 type Ord = {
   id: string; type: string; total: number; status: string;
@@ -25,7 +26,6 @@ type Ord = {
   comp?: { amount: number; reason: string; by: string; atMs: number };
   createdAt?: Timestamp;
 };
-const inr = (n: number) => "₹" + Math.round(n ?? 0).toLocaleString("en-IN");
 const IST_OFF = 330 * 60_000;
 const dayKey = (ms: number) => new Date(ms + IST_OFF).toISOString().slice(0, 10);
 

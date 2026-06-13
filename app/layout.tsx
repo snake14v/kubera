@@ -1,13 +1,18 @@
 import type { Metadata, Viewport } from "next";
-import { BRAND } from "@/lib/brand";
+import { BRAND, themeCssVars } from "@/lib/brand";
 
 // Pinned viewport — table-QR opens were getting random zoom on some phones
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#0D0E08",
+  themeColor: BRAND.theme.canvas,
 };
+
+// Deployer-customisable palette → :root CSS variables (see lib/brand.ts).
+const themeStyle = `:root{${Object.entries(themeCssVars())
+  .map(([k, v]) => `${k}:${v}`)
+  .join(";")}}`;
 import { display, body, serif } from "@/lib/fonts";
 import BottomNav from "@/components/BottomNav";
 import "./globals.css";
@@ -67,6 +72,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable} ${serif.variable}`}>
+      <head>
+        <style dangerouslySetInnerHTML={{ __html: themeStyle }} />
+      </head>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         {children}

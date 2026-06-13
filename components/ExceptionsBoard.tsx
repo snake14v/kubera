@@ -11,6 +11,7 @@ import { useEffect, useMemo, useState } from "react";
 import { collection, onSnapshot, Timestamp } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { orderCode } from "@/lib/orders";
+import { inr } from "@/lib/format";
 
 export type ExOrder = {
   id: string; total: number; status: string; name?: string; table?: string | null; pos?: string;
@@ -33,7 +34,6 @@ const KINDS: Record<Kind, { icon: string; color: string; label: string; loss: bo
 };
 const RANGES = [["today", "Today"], ["7d", "7 days"], ["30d", "30 days"], ["all", "All"]] as const;
 
-const inr = (n: number) => "₹" + Math.round(n ?? 0).toLocaleString("en-IN");
 const IST_OFF = 330 * 60_000;
 const dayKey = (ms: number) => new Date(ms + IST_OFF).toISOString().slice(0, 10);
 const hhmm = (ms: number) => new Date(ms).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kolkata" });

@@ -299,7 +299,7 @@ export default function Stickers() {
             out.push(
               <div key={t.key + "_cup"} className="h-[64mm] w-[64mm] rounded-full p-[5mm] text-center print:break-inside-avoid" style={{ backgroundColor: t.tier.color, color: t.tier.ink }}>
                 <div className="flex h-full w-full flex-col items-center justify-center rounded-full border-2 border-dashed" style={{ borderColor: t.tier.ink + "55" }}>
-                  <p className="font-display text-[11px] font-bold tracking-widest">ORBÉAN</p>
+                  <p className="font-display text-[11px] font-bold tracking-widest">{BRAND.business.name.toUpperCase()}</p>
                   <StickerGlass name={t.drink.name} addons={t.drink.addons.filter((n) => !/sugar|sweet/i.test(n))} hot={t.drink.temp === "hot"} sugarFree={t.drink.sugarFree} strength={t.drink.strength} size={58} />
                   <p className="mt-0.5 max-w-[46mm] font-display text-[12px] font-bold leading-tight">{t.drink.name}</p>
                   <p className="font-body text-[8px] leading-tight opacity-80">
@@ -313,7 +313,7 @@ export default function Stickers() {
             out.push(
               <div key={t.key + "_card"} className="h-[64mm] w-[48mm] rounded-xl p-[3mm] print:break-inside-avoid" style={{ backgroundColor: t.tier.color, color: t.tier.ink }}>
                 <div className="flex h-full w-full flex-col items-center justify-between rounded-lg border-2 p-[2.5mm]" style={{ borderColor: t.tier.ink + "66", backgroundColor: "#14160E" }}>
-                  <p className="font-display text-[10px] font-bold tracking-widest" style={{ color: t.tier.color }}>ORBÉAN · COLLECT</p>
+                  <p className="font-display text-[10px] font-bold tracking-widest" style={{ color: t.tier.color }}>{BRAND.business.name.toUpperCase()} · COLLECT</p>
                   <StickerGlass name={t.drink.name} addons={t.drink.addons.filter((n) => !/sugar|sweet/i.test(n))} hot={t.drink.temp === "hot"} sugarFree={t.drink.sugarFree} strength={t.drink.strength} size={88} />
                   <div className="text-center">
                     <p className="font-display text-[11px] font-bold leading-tight text-[#E8DFC9]">{t.drink.name}</p>

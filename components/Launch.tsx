@@ -1,6 +1,7 @@
 import Reveal from "./Reveal";
 import { Eyebrow } from "./ui";
 import { waLink } from "@/lib/contact";
+import { BRAND } from "@/lib/brand";
 
 const cards = [
   {
@@ -15,7 +16,7 @@ const cards = [
     title: "Reserve a table",
     note: "For the table by the window, plan ahead — we'll confirm on WhatsApp.",
     tag: "Live now",
-    href: waLink("Hi Orbéan, I'd like to reserve a table for ___ people on ___ at ___."),
+    href: waLink(`Hi ${BRAND.business.name}, I'd like to reserve a table for ___ people on ___ at ___.`),
     cta: "Reserve →",
     external: true,
   },
@@ -23,7 +24,7 @@ const cards = [
     title: "WhatsApp us",
     note: "A real person, usually within the hour.",
     tag: "Live now",
-    href: waLink("Hi Orbéan, I have a question —"),
+    href: waLink(`Hi ${BRAND.business.name}, I have a question —`),
     cta: "Message us →",
     external: true,
   },
@@ -39,8 +40,8 @@ export default function Launch() {
             Three ways in — open for orders.
           </h2>
           <p className="mt-5 max-w-2xl font-body text-lg font-light text-cream/70">
-            Doors open 12 July — online ordering is already live. Order to a table,
-            grab-and-go, or get it delivered around BTM.
+            {BRAND.business.opening ? `${BRAND.business.opening} — ` : ""}online ordering is already live. Order to a table,
+            grab-and-go, or get it delivered nearby.
           </p>
         </Reveal>
 

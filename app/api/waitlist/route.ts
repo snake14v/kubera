@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
+import { BRAND } from "@/lib/brand";
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
@@ -16,7 +17,7 @@ export async function POST(req: Request) {
 
     const key = process.env.RESEND_API_KEY;
     const to = process.env.WAITLIST_TO;
-    const from = process.env.WAITLIST_FROM || "Orbéan Waitlist <onboarding@resend.dev>";
+    const from = process.env.WAITLIST_FROM || `${BRAND.business.name} Waitlist <onboarding@resend.dev>`;
 
     // Not configured yet — accept gracefully so the UX works in dev/preview.
     if (!key || !to) {
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
     await resend.emails.send({
       from,
       to,
-      subject: "New Orbéan waitlist signup",
+      subject: `New ${BRAND.business.name} waitlist signup`,
       text: `New waitlist signup: ${email}\nReceived: ${new Date().toISOString()}`,
     });
 

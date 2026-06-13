@@ -1,6 +1,6 @@
 import { Bricolage_Grotesque, Inter, Italiana } from "next/font/google";
 
-// Display / headings / UI workhorse (dsln used Space Grotesk; Orbéan uses Bricolage)
+// Display / headings / UI workhorse (Kubera uses Bricolage Grotesque)
 export const display = Bricolage_Grotesque({
   subsets: ["latin"],
   variable: "--font-display",

@@ -1,4 +1,4 @@
-// Orbéan menu — from the brand's own menu creatives (see ../04-Brand-Facts.md).
+// Demo menu — replace with your own items.
 // Prices in ₹. Sizes: S (12oz) / M (16oz) / L (20oz). All available hot or iced.
 
 export type Sizes = { s: number; m: number; l: number };
