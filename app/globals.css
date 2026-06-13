@@ -1,0 +1,317 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-forest-950 text-cream font-body antialiased;
+  overflow-x: clip; /* stray wide elements must never cause phone zoom-out */
+}
+
+/* Mobile: kill tap delay / accidental double-tap zoom on controls */
+button,
+a,
+input,
+label {
+  touch-action: manipulation;
+}
+
+/* iOS: keep fixed bottom bars clear of the home indicator */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* A11y: visible keyboard focus, quiet for mouse users */
+:focus-visible {
+  outline: 2px solid #b59556;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Horizontal slide selectors (ordering category bar) */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Cart bar entrance + count bump */
+@keyframes rise-in {
+  from { transform: translateY(110%); }
+  to { transform: translateY(0); }
+}
+.rise-in {
+  animation: rise-in 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes bump {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+.bump {
+  animation: bump 0.3s ease-out;
+}
+
+/* Drink-glass pour + bubbles (DrinkGlass.tsx) */
+@keyframes glass-pour {
+  to { transform: scaleY(1); }
+}
+@keyframes glass-bubble {
+  0% { transform: translateY(0); opacity: 0; }
+  15% { opacity: 0.7; }
+  100% { transform: translateY(-110px); opacity: 0; }
+}
+
+/* Ice cubes drop in, then bob (DrinkGlass iced spec) */
+@keyframes ice-drop {
+  from { translate: 0 -300%; opacity: 0; }
+  60% { opacity: 1; }
+  to { translate: 0 0; opacity: 1; }
+}
+@keyframes ice-bob {
+  0%, 100% { margin-top: 0; }
+  50% { margin-top: 3px; }
+}
+
+/* World-class glass assets: pour stream, condensation, foam, latte art */
+@keyframes pour-stream {
+  0% { opacity: 0; transform: scaleY(0); }
+  8% { opacity: 0.9; transform: scaleY(1); }
+  85% { opacity: 0.9; transform: scaleY(1); }
+  100% { opacity: 0; transform: scaleY(0.2); }
+}
+@keyframes drip-slide {
+  0% { translate: 0 0; opacity: 0; }
+  15% { opacity: 0.75; }
+  100% { translate: 0 46px; opacity: 0; }
+}
+@keyframes foam-settle {
+  0% { transform: translateY(-12px) scaleX(0.7); opacity: 0; }
+  60% { transform: translateY(2px) scaleX(1.04); opacity: 1; }
+  100% { transform: translateY(0) scaleX(1); opacity: 1; }
+}
+@keyframes art-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Gourmet plating (FoodPlate.tsx) */
+@keyframes cloche-lift {
+  to { transform: translate(calc(-50% + 26px), -34px) rotate(14deg); opacity: 0; }
+}
+@keyframes plate-reveal {
+  from { transform: translate(-50%, 8px) scale(0.6); opacity: 0; }
+  to { transform: translate(-50%, 0) scale(1); opacity: 1; }
+}
+@keyframes plate-steam {
+  0% { transform: translateY(6px) scaleY(0.6); opacity: 0; }
+  30% { opacity: 0.7; }
+  100% { transform: translateY(-14px) scaleY(1.2); opacity: 0; }
+}
+@keyframes plate-sparkle {
+  0%, 100% { transform: scale(0.6) rotate(0deg); opacity: 0; }
+  50% { transform: scale(1.1) rotate(20deg); opacity: 1; }
+}
+
+/* Expandable menu card panel */
+.expand-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.expand-panel.open {
+  grid-template-rows: 1fr;
+}
+.expand-panel > div {
+  overflow: hidden;
+}
+
+/* Slow drifting colour wash for section backdrops (decorative, very subtle) */
+@keyframes hue-drift {
+  0% { transform: translate3d(-4%, -2%, 0) scale(1); opacity: 0.5; }
+  50% { transform: translate3d(4%, 3%, 0) scale(1.12); opacity: 0.8; }
+  100% { transform: translate3d(-4%, -2%, 0) scale(1); opacity: 0.5; }
+}
+.hue-blob {
+  animation: hue-drift 16s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Gold halo — Orbéan's analog of dsln's gold-shimmer (use sparingly) */
+.gold-glow {
+  box-shadow:
+    0 0 0 1px rgba(181, 149, 86, 0.25),
+    0 0 44px -10px rgba(181, 149, 86, 0.4);
+}
+
+/* ── Subtle running-RGB accents (dsln's rgb-gold tic, Orbéan-keyed) ──
+   Mostly gold, with slow drive-by excursions through the drink colours
+   (strawberry / blue-pea / matcha). Slow + low-contrast = premium, not gamer. */
+
+.rgb-text {
+  background-image: linear-gradient(
+    100deg,
+    #b59556 0%,
+    #d6b693 18%,
+    #e0852f 32%,
+    #d24b5a 46%,
+    #8d76c0 60%,
+    #5f9b78 72%,
+    #d6b693 86%,
+    #b59556 100%
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent; /* Safari */
+  animation: rgb-pan 9s linear infinite;
+}
+
+@keyframes rgb-pan {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 300% 50%; }
+}
+
+/* Cyberpunk RGB — neon cyan→magenta→violet sweep with a soft glow.
+   Reserved for the OORULOGIX credit (tech brand voice ≠ cafe gold). */
+.rgb-cyber {
+  background-image: linear-gradient(
+    100deg,
+    #00f0ff 0%,
+    #4dffdf 16%,
+    #b366ff 34%,
+    #ff3ec8 52%,
+    #7a5cff 70%,
+    #00f0ff 88%,
+    #4dffdf 100%
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: rgb-pan 5s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.45)) drop-shadow(0 0 14px rgba(255, 62, 200, 0.25));
+}
+
+/* Running ring — a slowly rotating conic border for featured cards */
+.rgb-ring {
+  position: relative;
+}
+.rgb-ring::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--ring-angle, 0deg),
+    rgba(181, 149, 86, 0.55),
+    rgba(210, 75, 90, 0.4),
+    rgba(141, 118, 192, 0.35),
+    rgba(95, 155, 120, 0.4),
+    rgba(181, 149, 86, 0.55)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: ring-spin 10s linear infinite;
+  pointer-events: none;
+}
+@property --ring-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes ring-spin {
+  to { --ring-angle: 360deg; }
+}
+
+/* Soft sheen that runs across gold pill buttons */
+.btn-sheen {
+  position: relative;
+  overflow: hidden;
+}
+.btn-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.22) 50%,
+    transparent 70%
+  );
+  transform: translateX(-150%);
+  animation: sheen 4.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes sheen {
+  0%, 60% { transform: translateX(-150%); }
+  85%, 100% { transform: translateX(150%); }
+}
+
+/* ── Coffee loading screen ── */
+@keyframes cup-fill {
+  0% { transform: translateY(100%); }
+  70% { transform: translateY(8%); }
+  100% { transform: translateY(0%); }
+}
+@keyframes steam-rise {
+  0% { transform: translateY(6px) scaleX(1); opacity: 0; }
+  30% { opacity: 0.5; }
+  100% { transform: translateY(-14px) scaleX(1.15); opacity: 0; }
+}
+@keyframes splash-out {
+  to { opacity: 0; visibility: hidden; }
+}
+.splash-fade {
+  animation: splash-out 0.6s ease-out 1.6s forwards;
+}
+.steam-1 { animation: steam-rise 2.2s ease-out infinite; }
+.steam-2 { animation: steam-rise 2.2s ease-out 0.7s infinite; }
+.steam-3 { animation: steam-rise 2.2s ease-out 1.4s infinite; }
+.cup-coffee {
+  animation: cup-fill 1.6s cubic-bezier(0.3, 0.8, 0.3, 1) forwards;
+}
+
+/* ── Colour sticker printing ──
+   Browsers strip background colours in print by default; the sticker sheets
+   ARE background colour, so force exact colours. Site chrome (top nav,
+   bottom navbar, footer) never belongs on a sticker sheet. A4 with a 5mm
+   margin = the 200mm-wide printable area the tray's sheet meter assumes. */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  nav,
+  footer {
+    display: none !important;
+  }
+}
+@page {
+  size: A4;
+  margin: 5mm;
+}
+
+/* Respect reduced motion globally */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
