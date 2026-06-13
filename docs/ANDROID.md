@@ -52,9 +52,10 @@ that builds the `.apk` in the cloud.
 
 ## Building locally (only if you DO have the Android SDK + JDK 21)
 
-Prerequisites: **JDK 21** (`JAVA_HOME` set), Android SDK with
-`platforms;android-36` + `build-tools;36.0.0` + `platform-tools`, and
-`ANDROID_HOME` set. The Gradle wrapper auto-downloads Gradle on first run.
+Prerequisites: **Node 22+** (Capacitor 8's CLI requires it), **JDK 21**
+(`JAVA_HOME` set), Android SDK with `platforms;android-36` +
+`build-tools;36.0.0` + `platform-tools`, and `ANDROID_HOME` set. The Gradle
+wrapper auto-downloads Gradle on first run.
 
 ```powershell
 # One-time scaffold (only if android/ doesn't exist yet)
