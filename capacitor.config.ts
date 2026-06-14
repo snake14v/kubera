@@ -33,8 +33,10 @@ try {
   /* keep fallback */
 }
 
-// Allow plaintext http only when explicitly opted in (LAN / dev).
-const allowCleartext = process.env.KUBERA_APP_CLEARTEXT === "true";
+// Allow plaintext http for LAN/dev: explicitly via KUBERA_APP_CLEARTEXT, or
+// automatically whenever the configured URL is http:// (production stays https).
+const allowCleartext =
+  process.env.KUBERA_APP_CLEARTEXT === "true" || APP_URL.startsWith("http://");
 
 const config: CapacitorConfig = {
   appId: APP_ID,
