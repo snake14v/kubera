@@ -15,6 +15,7 @@ const themeStyle = `:root{${Object.entries(themeCssVars())
   .join(";")}}`;
 import { display, body, serif } from "@/lib/fonts";
 import BottomNav from "@/components/BottomNav";
+import FirstRunGate from "@/components/FirstRunGate";
 import "./globals.css";
 
 const biz = BRAND.business;
@@ -77,6 +78,7 @@ export default function RootLayout({
       </head>
       <body>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <FirstRunGate />
         {children}
         <BottomNav />
       </body>

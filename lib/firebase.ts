@@ -8,6 +8,7 @@ import { getAuth, GoogleAuthProvider, type Auth } from "firebase/auth";
 import { getFirestore, type Firestore } from "firebase/firestore";
 import { FIREBASE_CONFIG, firebaseConfigured } from "./firebaseConfig";
 import { cleanEnv } from "./cleanEnv";
+import { readStoredAdmins } from "./runtimeConfig";
 
 export const firebaseEnabled = firebaseConfigured;
 
@@ -24,13 +25,18 @@ if (firebaseConfigured) {
 export const googleProvider = new GoogleAuthProvider();
 export { app, auth, db };
 
-/** Comma-separated allow-list of owner/admin emails (also enforced by
- *  Firestore rules). Set NEXT_PUBLIC_ADMIN_EMAILS in your env — see
- *  .env.local.example. Empty by default so no personal account is baked in. */
-export const ADMIN_EMAILS = cleanEnv(process.env.NEXT_PUBLIC_ADMIN_EMAILS)
-  .split(",")
-  .map((e) => cleanEnv(e).toLowerCase())
-  .filter(Boolean);
+/** Allow-list of owner/admin emails (also enforced by Firestore rules).
+ *  Resolved from NEXT_PUBLIC_ADMIN_EMAILS (build time) OR, on the client, from
+ *  per-device runtime config saved by the /setup wizard. Empty by default so no
+ *  personal account is baked in. */
+export const ADMIN_EMAILS = (() => {
+  const fromEnv = cleanEnv(process.env.NEXT_PUBLIC_ADMIN_EMAILS)
+    .split(",")
+    .map((e) => cleanEnv(e).toLowerCase())
+    .filter(Boolean);
+  if (fromEnv.length) return fromEnv;
+  return readStoredAdmins().map((e) => e.trim().toLowerCase()).filter(Boolean);
+})();
 
 export function isAdmin(email: string | null | undefined) {
   return !!email && ADMIN_EMAILS.includes(email.toLowerCase());

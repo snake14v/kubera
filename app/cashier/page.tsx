@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { addDoc, arrayUnion, collection, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc, Timestamp } from "firebase/firestore";
 import { auth, db, isAdmin, firebaseEnabled } from "@/lib/firebase";
+import { useMounted } from "@/lib/useMounted";
 import { orderCode, ORDERABLE, CATEGORIES, ADDONS, priceFor, SIZE_LABEL, lineKey, type OrderableItem, type SizeKey, type AddonPick } from "@/lib/orders";
 import { inr } from "@/lib/format";
 import { TABLE_COUNT } from "@/lib/tables";
@@ -161,6 +162,9 @@ function Till({ user }: { user: User | null }) {
       setOrders(s.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Ord, "id">) })))
     );
   }, [admin]);
+
+  const mounted = useMounted();
+  if (!mounted) return <main className="min-h-screen bg-forest-950" />;
 
   if (!firebaseEnabled)
     return (

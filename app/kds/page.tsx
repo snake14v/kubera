@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
 import { arrayUnion, collection, doc, onSnapshot, orderBy, query, updateDoc, Timestamp } from "firebase/firestore";
 import { auth, db, isAdmin, firebaseEnabled } from "@/lib/firebase";
+import { useMounted } from "@/lib/useMounted";
 import { orderCode, SIZE_LABEL, type SizeKey } from "@/lib/orders";
 import { usePresence } from "@/lib/presence";
 import StaffGate, { useStaffGate } from "@/components/StaffGate";
@@ -84,6 +85,9 @@ function Board({ user }: { user: User | null }) {
       setOrders(docs);
     });
   }, [admin]);
+
+  const mounted = useMounted();
+  if (!mounted) return <main className="min-h-screen bg-forest-950" />;
 
   if (!firebaseEnabled)
     return (

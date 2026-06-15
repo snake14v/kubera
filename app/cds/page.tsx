@@ -8,6 +8,7 @@ import { onAuthStateChanged, type User } from "firebase/auth";
 import { collection, doc, onSnapshot, orderBy, query, Timestamp } from "firebase/firestore";
 import QRCode from "qrcode";
 import { auth, db, isAdmin, firebaseEnabled } from "@/lib/firebase";
+import { useMounted } from "@/lib/useMounted";
 import { BRAND } from "@/lib/brand";
 import { orderCode } from "@/lib/orders";
 import { inr } from "@/lib/format";
@@ -64,10 +65,13 @@ export default function CDS() {
   const ready = orders.filter((o) => o.status === "ready").slice(0, 6);
   const first = (n: string) => (n || "").split(" ")[0];
 
+  const mounted = useMounted();
+  if (!mounted) return <main className="min-h-screen bg-forest-950" />;
+
   return (
     <main className="flex min-h-screen flex-col bg-forest-950 p-8 text-cream">
       <div className="flex items-center justify-between">
-        <p className="font-display text-3xl font-bold">ORB<span className="rgb-text">É</span>AN <span className="text-gold-400">COFFEE</span></p>
+        <p className="font-display text-3xl font-bold">{BRAND.business.name}</p>
         <p className="font-display text-3xl font-bold tabular-nums text-gold-400">{clock}</p>
       </div>
 

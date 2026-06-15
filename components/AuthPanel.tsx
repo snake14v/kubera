@@ -11,6 +11,7 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { auth, googleProvider, firebaseEnabled } from "@/lib/firebase";
+import { useMounted } from "@/lib/useMounted";
 
 type Mode = "signin" | "register" | "reset";
 
@@ -63,6 +64,9 @@ export default function AuthPanel({ onDone }: { onDone?: () => void }) {
         setMsg({ kind: "error", text: friendly(code) });
       });
   }, [onDone]);
+
+  const mounted = useMounted();
+  if (!mounted) return null;
 
   if (!firebaseEnabled) {
     return (

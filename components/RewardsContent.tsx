@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { onAuthStateChanged, signOut, type User } from "firebase/auth";
 import { BRAND } from "@/lib/brand";
 import { auth, firebaseEnabled } from "@/lib/firebase";
+import { useMounted } from "@/lib/useMounted";
 import AuthPanel from "./AuthPanel";
 import PageHeader from "./PageHeader";
 import Reveal from "./Reveal";
@@ -73,6 +74,8 @@ export default function RewardsContent() {
     else setMember(null);
   }, [user, load]);
 
+  const mounted = useMounted();
+
   return (
     <>
       <PageHeader
@@ -90,7 +93,7 @@ export default function RewardsContent() {
 
       <section className="bg-forest-950 py-20 sm:py-24">
         <div className="mx-auto max-w-5xl px-5 sm:px-8">
-          {!firebaseEnabled ? (
+          {(!mounted || !firebaseEnabled) ? (
             <Notice title="Rewards sign-in is being set up" body="Google sign-in needs the Firebase keys (see FIREBASE-SETUP.md). It'll be live shortly." />
           ) : !ready ? (
             <p className="font-body text-cream/50">Loading…</p>

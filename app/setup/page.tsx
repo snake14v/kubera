@@ -4,6 +4,15 @@ import { useEffect, useMemo, useState } from "react";
 import { onAuthStateChanged, signInWithPopup, signOut, type User } from "firebase/auth";
 import { auth, googleProvider, firebaseEnabled, isAdmin, ADMIN_EMAILS } from "@/lib/firebase";
 import { BRAND } from "@/lib/brand";
+import { useMounted } from "@/lib/useMounted";
+import {
+  writeStoredFirebase,
+  writeStoredAdmins,
+  clearStoredConfig,
+  parseFirebaseConfigBlock,
+  isCompleteFirebase,
+  type FirebaseWebConfig,
+} from "@/lib/runtimeConfig";
 import {
   CONFIG_FIELDS,
   buildEnvBlock,
@@ -34,6 +43,7 @@ export default function SetupPage() {
   const [cfg, setCfg] = useState<Record<string, string>>(seed);
   const [user, setUser] = useState<User | null>(null);
   const [copied, setCopied] = useState("");
+  const mounted = useMounted();
 
   useEffect(() => {
     if (!auth) return;
@@ -74,8 +84,46 @@ export default function SetupPage() {
     set("SHOPSENSE_INGEST_TOKEN", Array.from(a).map((x) => x.toString(16).padStart(2, "0")).join(""));
   }
 
+  // Fill the 6 Firebase fields from a pasted `firebaseConfig = { … }` block.
+  function pasteFill(text: string) {
+    const fb = parseFirebaseConfigBlock(text);
+    if (fb.apiKey) set("NEXT_PUBLIC_FIREBASE_API_KEY", fb.apiKey);
+    if (fb.authDomain) set("NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN", fb.authDomain);
+    if (fb.projectId) set("NEXT_PUBLIC_FIREBASE_PROJECT_ID", fb.projectId);
+    if (fb.storageBucket) set("NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET", fb.storageBucket);
+    if (fb.messagingSenderId) set("NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID", fb.messagingSenderId);
+    if (fb.appId) set("NEXT_PUBLIC_FIREBASE_APP_ID", fb.appId);
+  }
+
+  // Save the entered config on THIS device (runtime, no rebuild) and reload so
+  // the whole app re-initialises Firebase from it. Returns an error message or "".
+  function connectThisDevice(): string {
+    const fb: FirebaseWebConfig = {
+      apiKey: (cfg.NEXT_PUBLIC_FIREBASE_API_KEY || "").trim(),
+      authDomain: (cfg.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "").trim(),
+      projectId: (cfg.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "").trim(),
+      storageBucket: (cfg.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "").trim(),
+      messagingSenderId: (cfg.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "").trim(),
+      appId: (cfg.NEXT_PUBLIC_FIREBASE_APP_ID || "").trim(),
+    };
+    if (!isCompleteFirebase(fb)) return "Enter at least the apiKey and projectId.";
+    const admins = adminRaw.split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+    if (!admins.length) return "Set your admin email in the Admin step first.";
+    writeStoredFirebase(fb);
+    writeStoredAdmins(admins);
+    window.location.reload();
+    return "";
+  }
+
+  function disconnect() {
+    clearStoredConfig();
+    window.location.reload();
+  }
+
   const id = SETUP_STEPS[step].id;
   const last = SETUP_STEPS.length - 1;
+
+  if (!mounted) return <main className="min-h-screen bg-forest-950" />;
 
   return (
     <main className="min-h-screen bg-forest-950 pb-24">
@@ -130,7 +178,7 @@ export default function SetupPage() {
         <section className="min-w-0">
           {id === "welcome" && <Welcome />}
           {id === "brand" && <FormGroups groups={["Business", "Money & locale", "Storefront", "Admin"]} cfg={cfg} set={set} envBlock={envBlock} copy={copy} copied={copied} />}
-          {id === "firebase" && <Firebase cfg={cfg} set={set} envBlock={envBlock} copy={copy} copied={copied} firebaseEnabled={firebaseEnabled} />}
+          {id === "firebase" && <Firebase cfg={cfg} set={set} envBlock={envBlock} copy={copy} copied={copied} firebaseEnabled={firebaseEnabled} pasteFill={pasteFill} connectThisDevice={connectThisDevice} disconnect={disconnect} />}
           {id === "admin" && <Admin adminRaw={adminRaw} set={set} rulesSnippet={rulesSnippet} copy={copy} copied={copied} check={checkState} />}
           {id === "services" && <Services cfg={cfg} set={set} genToken={genToken} envBlock={envBlock} copy={copy} copied={copied} />}
           {id === "golive" && <GoLive check={checkState} copy={copy} copied={copied} />}
@@ -258,38 +306,83 @@ function EnvOutput({ envBlock, copy, copied }: { envBlock: string; copy: (t: str
   );
 }
 
-function Firebase({ cfg, set, envBlock, copy, copied, firebaseEnabled }: { cfg: Record<string, string>; set: (k: string, v: string) => void; envBlock: string; copy: (t: string, k: string) => void; copied: string; firebaseEnabled: boolean }) {
+function Firebase({ cfg, set, envBlock, copy, copied, firebaseEnabled, pasteFill, connectThisDevice, disconnect }: {
+  cfg: Record<string, string>;
+  set: (k: string, v: string) => void;
+  envBlock: string;
+  copy: (t: string, k: string) => void;
+  copied: string;
+  firebaseEnabled: boolean;
+  pasteFill: (text: string) => void;
+  connectThisDevice: () => string;
+  disconnect: () => void;
+}) {
+  const [paste, setPaste] = useState("");
+  const [err, setErr] = useState("");
   const steps = [
-    "Go to console.firebase.google.com → Add project (name it anything).",
-    "Click the Web icon (</>) → register an app.",
-    "Copy each value from the firebaseConfig snippet into the fields below.",
-    "Build → Authentication → enable Google + Email/Password.",
-    "Authentication → Settings → Authorized domains → add localhost + your domain.",
+    "Go to console.firebase.google.com → Add project (sign in with your Google account; name it anything).",
+    "Click the Web icon (</>) → register an app → copy the firebaseConfig.",
+    "Build → Authentication → Get started → enable Google + Email/Password.",
+    "Authentication → Settings → Authorized domains → add this app’s domain.",
     "Build → Firestore Database → Create database (Production mode).",
+    "Firestore → Rules → paste your rules (Admin step) → Publish.",
   ];
   return (
     <div>
       <H>Connect Firebase</H>
-      <Lede>Firebase powers sign-in and the Firestore data store. The values are public by design — security comes from the rules, not from hiding them.</Lede>
+      <Lede>Each shop connects its own free Firebase — it powers Google sign-in and the data store. The keys are public by design; security comes from the rules.</Lede>
       <div className={`mt-4 inline-flex items-center gap-2 rounded-full px-3 py-1 font-body text-[11px] font-bold ${firebaseEnabled ? "bg-emerald-500/15 text-emerald-500" : "bg-gold-500/15 text-gold-400"}`}>
         <span className="h-2 w-2 rounded-full" style={{ background: "currentColor" }} />
-        {firebaseEnabled ? "Connected — this build has Firebase config." : "Not connected yet — running in demo mode."}
+        {firebaseEnabled ? "Connected on this device." : "Not connected yet — running in demo mode."}
       </div>
-      <ol className="mt-6 space-y-2">
-        {steps.map((s, i) => (
-          <li key={i} className="flex gap-3 font-body text-[14px] text-cream/75">
-            <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-gold-500/50 text-[11px] font-bold text-gold-400">{i + 1}</span>
-            <span>{s}</span>
-          </li>
-        ))}
-      </ol>
-      <p className="mt-3 font-body text-[12px] text-cream/45">Tip: <code className="text-gold-400">npm run setup</code> can parse the whole <code className="text-gold-400">firebaseConfig</code> block in one paste. Full walkthrough in <code className="text-gold-400">FIREBASE-SETUP.md</code>.</p>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        {CONFIG_FIELDS.filter((f) => f.group === "Firebase").map((f) => (
-          <FieldInput key={f.key} k={f.key} cfg={cfg} set={set} />
-        ))}
-      </div>
-      <EnvOutput envBlock={envBlock} copy={copy} copied={copied} />
+
+      {firebaseEnabled ? (
+        <div className="mt-6 rounded-2xl border border-emerald-500/30 bg-forest-900/60 p-5">
+          <p className="font-body text-sm font-bold text-cream">This device is connected to Firebase.</p>
+          <p className="mt-1 font-body text-[12px] text-cream/55">Sign in with Google on the Admin step (or any admin surface). To point this device at a different project, disconnect first.</p>
+          <button onClick={disconnect} className={`mt-3 ${btnGhost}`}>Disconnect this device</button>
+        </div>
+      ) : (
+        <>
+          <ol className="mt-6 space-y-2">
+            {steps.map((s, i) => (
+              <li key={i} className="flex gap-3 font-body text-[14px] text-cream/75">
+                <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-gold-500/50 text-[11px] font-bold text-gold-400">{i + 1}</span>
+                <span>{s}</span>
+              </li>
+            ))}
+          </ol>
+
+          <div className="mt-6">
+            <p className="font-body text-[11px] font-bold uppercase tracking-brand text-gold-500">Paste your firebaseConfig</p>
+            <p className="mt-1 font-body text-[12px] text-cream/50">Paste the whole block from the Firebase console — we&rsquo;ll fill the fields below.</p>
+            <textarea
+              value={paste}
+              onChange={(e) => setPaste(e.target.value)}
+              rows={5}
+              placeholder={'const firebaseConfig = {\n  apiKey: "AIza…",\n  projectId: "your-project",\n  …\n}'}
+              className={`mt-2 ${field} font-mono text-[12px]`}
+              aria-label="Paste firebaseConfig"
+            />
+            <button onClick={() => pasteFill(paste)} className={`mt-2 ${btnGhost}`}>Fill fields from paste</button>
+          </div>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            {CONFIG_FIELDS.filter((f) => f.group === "Firebase").map((f) => (
+              <FieldInput key={f.key} k={f.key} cfg={cfg} set={set} />
+            ))}
+          </div>
+
+          <div className="mt-6 rounded-2xl border border-gold-500/30 bg-forest-900/60 p-5">
+            <p className="font-body text-sm font-bold text-cream">Connect this device</p>
+            <p className="mt-1 font-body text-[12px] text-cream/55">Saves the config above on <span className="text-gold-400">this device</span> (no rebuild) and reloads so Google login works. Set your admin email on the Admin step first.</p>
+            <button onClick={() => setErr(connectThisDevice())} className={`mt-3 ${btnGold}`}>Connect &amp; reload</button>
+            {err && <p className="mt-2 font-body text-[12px] text-red-300">{err}</p>}
+          </div>
+
+          <EnvOutput envBlock={envBlock} copy={copy} copied={copied} />
+        </>
+      )}
     </div>
   );
 }

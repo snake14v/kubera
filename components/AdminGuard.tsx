@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { onAuthStateChanged, signInWithPopup, signOut, type User } from "firebase/auth";
 import { auth, googleProvider, firebaseEnabled, isAdmin } from "@/lib/firebase";
 import { BRAND } from "@/lib/brand";
+import { useMounted } from "@/lib/useMounted";
 
 /** Wraps an admin area: Google sign-in + email allow-list. Renders children only for admins. */
 export default function AdminGuard({
@@ -15,6 +16,7 @@ export default function AdminGuard({
 }) {
   const [user, setUser] = useState<User | null>(null);
   const [ready, setReady] = useState(false);
+  const mounted = useMounted();
 
   useEffect(() => {
     if (!auth) {
@@ -46,7 +48,9 @@ export default function AdminGuard({
       </header>
 
       <div className="mx-auto max-w-6xl px-5 py-12 sm:px-8">
-        {!firebaseEnabled ? (
+        {!mounted ? (
+          <p className="font-body text-cream/50">Loading…</p>
+        ) : !firebaseEnabled ? (
           <div className="max-w-xl">
             <Notice title="Firebase isn't configured yet" body="Add the NEXT_PUBLIC_FIREBASE_* env vars (see FIREBASE-SETUP.md), then redeploy." />
             <a href="/setup" className="mt-4 inline-block rounded-full bg-gold-500 px-5 py-2.5 font-body text-[11px] font-bold uppercase tracking-brand text-forest-950 transition-colors hover:bg-gold-700">
