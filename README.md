@@ -38,6 +38,12 @@ your sales data, and pay **₹0 in software fees and ₹0 in payment MDR**.
 | Loyalty + collectibles       | partial  |      partial      |     ✅     |
 | No per-terminal license      |    ❌    |        ❌         |     ✅     |
 
+> 📊 **Sourced, head-to-head breakdown vs Petpooja** — real (user-reported)
+> pricing, lock-in, onboarding time, support and tech gaps → **[COMPARISON.md](COMPARISON.md)**.
+> TL;DR: Petpooja is ₹15k–30k+/outlet/yr on opaque sales-only pricing with annual
+> lock-in and a 3–7 day install; Kubera is ₹0 software, self-host, own your data,
+> set up in an afternoon.
+
 > **How the project sustains itself:** the software is free forever. Oorulogix
 > funds development through **[ShopSense](#-shopsense-hardware)** — plug-and-play
 > counter hardware (sensors, printers, displays) that lights up automatically
